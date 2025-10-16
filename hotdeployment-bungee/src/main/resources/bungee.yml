@@ -1,0 +1,5 @@
+name: HotDeployment
+author: commandf1
+version: ${version}
+main: space.commandf1.hotdeployment.bungee.HotDeploymentBungeePlugin
+description: ${description}

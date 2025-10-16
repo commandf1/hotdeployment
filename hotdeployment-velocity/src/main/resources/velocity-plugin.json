@@ -1,0 +1,9 @@
+{
+  "id": "hotdeployment",
+  "name": "${name}",
+  "authors": ["commandf1"],
+  "version": "${version}",
+  "description": "${description}",
+  "dependencies": [],
+  "main": "space.commandf1.hotdeployment.velocity.HotDeploymentVelocityPlugin"
+}

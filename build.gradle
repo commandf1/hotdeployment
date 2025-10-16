@@ -1,0 +1,98 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.0'
+    id 'maven-publish'
+    id 'application'
+}
+
+allprojects {
+    group = 'space.commandf1'
+    version = '1.0-SNAPSHOT'
+    description = ''
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+                from components.java
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += [
+                '--add-exports',
+                'java.base/jdk.internal.reflect=ALL-UNNAMED'
+        ]
+    }
+
+    tasks.withType(JavaExec).tap {
+        configureEach {
+            jvmArgs += [
+                    '-Dorg.bytedeco.javacpp.maxbytes=4G',
+                    '-Dorg.bytedeco.javacpp.maxphysicalbytes=8G',
+                    '--add-opens',
+                    'java.base/jdk.internal.reflect=ALL-UNNAMED'
+            ]
+        }
+    }
+}
+
+build {
+    dependsOn shadowJar
+}
+
+shadowJar {
+    mainClassName = 'space.commandf1.hotdeployment.bukkit.HotDeploymentBukkit'
+
+    relocate 'com.google', 'space.commandf1.hotdeployment.libs.com.google'
+    relocate 'net.bytebuddy', 'space.commandf1.hotdeployment.libs.net.bytebuddy'
+    relocate 'org.intellij', 'space.commandf1.hotdeployment.libs.org.intellij'
+    relocate 'org.jetbrains', 'space.commandf1.hotdeployment.libs.org.jetbrains'
+    relocate 'com.fasterxml', 'space.commandf1.hotdeployment.libs.com.fasterxml'
+    relocate 'com.squareup', 'space.commandf1.hotdeployment.libs.com.squareup'
+    relocate 'kotlin', 'space.commandf1.hotdeployment.libs.kotlin'
+    relocate 'okhttp3', 'space.commandf1.hotdeployment.libs.okhttp3'
+    relocate 'okio', 'space.commandf1.hotdeployment.libs.okio'
+
+    manifest {
+        attributes(
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+        )
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':hotdeployment-bukkit')
+    implementation project(':hotdeployment-bungee')
+    implementation project(':hotdeployment-velocity')
+    implementation project(':hotdeployment-common')
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,9 @@
+name: HotDeployment
+author: commandf1
+version: ${version}
+main: space.commandf1.hotdeployment.bukkit.HotDeploymentBukkitPlugin
+api-version: '1.13'
+description: ${description}
+commands:
+  hotdeployment:
+    description: 'HotDeployment'

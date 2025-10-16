@@ -1,0 +1,5 @@
+rootProject.name = 'hotdeployment'
+include 'hotdeployment-common'
+include 'hotdeployment-bukkit'
+include 'hotdeployment-bungee'
+include 'hotdeployment-velocity'
