@@ -56,11 +56,11 @@ public class JarDiffUtil {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) continue;
-                String name = entry.getName();
+                val name = entry.getName();
                 byte[] data = readAllBytes(zis);
 
                 if (name.endsWith(".class")) {
-                    String className = name.substring(0, name.length() - 6).replace('/', '.');
+                    val className = name.substring(0, name.length() - 6).replace('/', '.');
                     classes.put(className, data);
                 } else {
                     resources.put(name, data);
@@ -74,24 +74,24 @@ public class JarDiffUtil {
     public static @NotNull DiffResult diffAgainst(@NotNull JarSnapshot remote,
                                                   @NotNull Map<String, Class<?>> loadedClasses,
                                                   @NotNull ClassLoader resourceLoader) {
-        Map<String, byte[]> changedClasses = new HashMap<>();
-        Set<String> removedClasses = new HashSet<>();
+        val changedClasses = new HashMap<String, byte[]>();
+        val removedClasses = new HashSet<String>();
 
         for (val entry : remote.getClassNameToBytes().entrySet()) {
-            String className = entry.getKey();
-            byte[] newBytes = entry.getValue();
-            Class<?> existing = loadedClasses.get(className);
+            val className = entry.getKey();
+            val newBytes = entry.getValue();
+            val existing = loadedClasses.get(className);
             if (existing == null) {
                 changedClasses.put(className, newBytes);
             } else {
-                byte[] existingBytes = getClassBytes(existing);
+                val existingBytes = getClassBytes(existing);
                 if (!Arrays.equals(hash(newBytes), hash(existingBytes))) {
                     changedClasses.put(className, newBytes);
                 }
             }
         }
 
-        for (String existingName : loadedClasses.keySet()) {
+        for (val existingName : loadedClasses.keySet()) {
             if (!remote.getClassNameToBytes().containsKey(existingName)) {
                 removedClasses.add(existingName);
             }
@@ -101,9 +101,9 @@ public class JarDiffUtil {
         Set<String> removedResources = new HashSet<>();
 
         for (val entry : remote.getResourcePathToBytes().entrySet()) {
-            String path = entry.getKey();
-            byte[] newBytes = entry.getValue();
-            byte[] oldBytes = readResource(resourceLoader, path).orElse(null);
+            val path = entry.getKey();
+            val newBytes = entry.getValue();
+            val oldBytes = readResource(resourceLoader, path).orElse(null);
             if (oldBytes == null || !Arrays.equals(hash(newBytes), hash(oldBytes))) {
                 changedResources.put(path, newBytes);
             }
@@ -113,7 +113,7 @@ public class JarDiffUtil {
     }
 
     private static Optional<byte[]> readResource(ClassLoader loader, String path) {
-        try (InputStream is = loader.getResourceAsStream(path)) {
+        try (val is = loader.getResourceAsStream(path)) {
             if (is == null) return Optional.empty();
             return Optional.of(readAllBytes(is));
         } catch (IOException e) {
@@ -122,8 +122,8 @@ public class JarDiffUtil {
     }
 
     private static byte[] readAllBytes(InputStream is) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8192];
+        val baos = new ByteArrayOutputStream();
+        val buffer = new byte[8192];
         int read;
         while ((read = is.read(buffer)) != -1) {
             baos.write(buffer, 0, read);
@@ -133,18 +133,17 @@ public class JarDiffUtil {
 
     private static byte[] getClassBytes(Class<?> clazz) {
         try {
-            java.lang.reflect.Field field = Class.class.getDeclaredField("classData");
+            val field = Class.class.getDeclaredField("classData");
             field.setAccessible(true);
             return (byte[]) field.get(clazz);
         } catch (Exception e) {
-            // If we can't access class bytes, return empty array
             return new byte[0];
         }
     }
 
     private static byte[] hash(byte[] data) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            val md = MessageDigest.getInstance("SHA-256");
             return md.digest(data);
         } catch (Exception e) {
             return data;

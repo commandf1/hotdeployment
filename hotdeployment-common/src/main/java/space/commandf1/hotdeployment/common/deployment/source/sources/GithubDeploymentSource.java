@@ -76,7 +76,7 @@ public class GithubDeploymentSource extends AbstractGitDeploymentSource {
 
                 if ("released".equals(action)) {
                     val release = payload.get("release");
-//                    val tagName = release.get("tag_name").asText(); // reserved for future logs
+//                    val tagName = release.get("tag_name").asText();
                     val assets = release.get("assets");
 
                     Executors.newSingleThreadExecutor().submit(() -> {

@@ -54,6 +54,6 @@ public class InterceptionUtil {
         return className.equals(interceptedClass.getName()) ||
                 className.startsWith("java.lang.reflect.") ||
                 className.startsWith("net.bytebuddy.") ||
-                className.startsWith("space.commandf1.hotdeployment.common.util");
+                className.startsWith(InterceptionUtil.class.getPackageName());
     }
 }
